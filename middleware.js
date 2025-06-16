@@ -1,17 +1,6 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
-// Fixed for Vercel deployment - using nodejs runtime
+import { clerkMiddleware } from '@clerk/nextjs/server'
 
-const isProtectedRoute = createRouteMatcher([
-  '/dashboard(.*)',
-  '/workspace(.*)'
-])
-
-export default clerkMiddleware((auth, req) => {
-  // Protect routes that require authentication
-  if (isProtectedRoute(req)) {
-    auth().protect()
-  }
-})
+export default clerkMiddleware()
 
 export const config = {
   matcher: [
@@ -20,5 +9,4 @@ export const config = {
     // Always run for API routes
     '/(api|trpc)(.*)',
   ],
-  runtime: 'nodejs',
 }
