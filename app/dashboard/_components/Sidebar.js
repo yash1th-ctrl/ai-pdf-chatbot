@@ -13,26 +13,24 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
   const path = usePathname();
 
   // Conditionally use Convex hooks only if environment is set up
+  // Get user email with fallback for testing
+  const userEmail = user?.primaryEmailAddress?.emailAddress || "test@example.com";
+
+  // Always call hooks at the top level
   let GetUserInfo = null;
   let fileList = null;
 
   try {
-    // Only import and use Convex if URL is available and not disabled
-    if (process.env.NEXT_PUBLIC_CONVEX_URL && process.env.NEXT_PUBLIC_CONVEX_URL !== "disabled") {
-      const { useQuery } = require("convex/react");
-      const { api } = require("@/convex/_generated/api");
+    const { useQuery } = require("convex/react");
+    const { api } = require("@/convex/_generated/api");
 
-      // Get user email with fallback for testing
-      const userEmail = user?.primaryEmailAddress?.emailAddress || "test@example.com";
+    GetUserInfo = useQuery(api.user.GetUserInfo, {
+      useEmail: userEmail,
+    });
 
-      GetUserInfo = useQuery(api.user.GetUserInfo, {
-        useEmail: userEmail,
-      });
-
-      fileList = useQuery(api.fileStorage.GetUserFiles, {
-        userEmail: userEmail,
-      });
-    }
+    fileList = useQuery(api.fileStorage.GetUserFiles, {
+      userEmail: userEmail,
+    });
   } catch (error) {
     console.log("Convex not available, using fallback data");
   }

@@ -1,43 +1,18 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { UserButton, useUser } from "@clerk/nextjs";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion"; // For animations
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
 
 export default function Home() {
   // USER HOOK
   const { user } = useUser();
-  const [convexAvailable, setConvexAvailable] = useState(false);
 
-  // Conditionally use Convex hooks at the top level
-  let createUser = null;
-
-  try {
-    if (process.env.NEXT_PUBLIC_CONVEX_URL && process.env.NEXT_PUBLIC_CONVEX_URL !== "disabled") {
-      const { useMutation } = require("convex/react");
-      const { api } = require("@/convex/_generated/api");
-
-      createUser = useMutation(api.user.createUser);
-    }
-  } catch (error) {
-    console.log("Convex not available for user creation");
-  }
-
-  // Check if Convex is available - but don't use hooks inside useEffect
-  useEffect(() => {
-    if (process.env.NEXT_PUBLIC_CONVEX_URL && process.env.NEXT_PUBLIC_CONVEX_URL !== "disabled") {
-      setConvexAvailable(true);
-    } else {
-      setConvexAvailable(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (user && createUser) {
-      CheckUser();
-    }
-  }, [user, createUser]);
+  // Always call Convex hooks at the top level
+  const createUser = useMutation(api.user.createUser);
 
   const CheckUser = async () => {
     if (!createUser) {
@@ -51,10 +26,19 @@ export default function Home() {
         email: user?.primaryEmailAddress?.emailAddress,
         imageUrl: user?.imageUrl,
       });
+      console.log("User created/updated:", result);
     } catch (error) {
       console.log("Error creating user:", error);
     }
   };
+
+  useEffect(() => {
+    if (user && createUser) {
+      CheckUser();
+    }
+  }, [user, createUser, CheckUser]);
+
+
 
   return (
     <div className="overflow-hidden bg-gradient-to-b from-background via-secondary to-muted">

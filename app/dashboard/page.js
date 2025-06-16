@@ -13,19 +13,13 @@ const Dashboard = () => {
   const { user } = useUser();
   const [deletingFileId, setDeletingFileId] = useState(null);
 
-  // Always call Convex hooks at the top level
-  const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
-  const convexAvailable = convexUrl && convexUrl !== "disabled" && convexUrl.startsWith("https://");
-
   // Get user email with fallback
   const userEmail = user?.primaryEmailAddress?.emailAddress || "test@example.com";
 
-  // Always call the useQuery hook - it will handle errors gracefully if ConvexProvider is not available
+  // Always call Convex hooks at the top level - they will handle errors gracefully
   const fileList = useQuery(api.fileStorage.GetUserFiles, {
     userEmail: userEmail,
   });
-
-  // Delete mutation
   const deleteFile = useMutation(api.fileStorage.DeleteFile);
 
   // Provide fallback data when Convex query returns undefined/null
@@ -34,7 +28,6 @@ const Dashboard = () => {
   // Debug logging
   console.log("Dashboard - User:", user?.primaryEmailAddress?.emailAddress);
   console.log("Dashboard - FileList:", fileList);
-  console.log("Dashboard - ConvexAvailable:", convexAvailable);
 
   // Handle file deletion
   const handleDeleteFile = async (fileId, fileName, event) => {
@@ -42,6 +35,11 @@ const Dashboard = () => {
     event.stopPropagation();
 
     if (!confirm(`Are you sure you want to delete "${fileName}"? This action cannot be undone.`)) {
+      return;
+    }
+
+    if (!deleteFile) {
+      toast.error("Delete functionality not available");
       return;
     }
 

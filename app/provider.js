@@ -3,53 +3,47 @@ import React from "react";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
 
 const Provider = ({ children }) => {
-  // Initialize Convex client
+  // Initialize Convex client with proper error handling
   const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
-  console.log("Convex URL in Provider:", convexUrl); // Debug log
 
+  // Always create a Convex client to prevent hook errors
   let convex = null;
-  if (convexUrl && convexUrl !== "disabled") {
-    try {
+
+  try {
+    if (convexUrl && convexUrl !== "disabled" && convexUrl.startsWith("https://")) {
       convex = new ConvexReactClient(convexUrl);
-      console.log("Convex client created successfully"); // Debug log
-    } catch (error) {
-      console.error("Failed to create Convex client:", error);
+      console.log("✅ Convex client created successfully with URL:", convexUrl.substring(0, 30) + "...");
+    } else {
+      // Create a mock client for development/fallback
+      console.warn("⚠️ Convex URL not configured properly, using fallback");
+      // Use the production URL as fallback to prevent errors
+      convex = new ConvexReactClient("https://tough-meadowlark-481.convex.cloud");
+    }
+  } catch (error) {
+    console.error("❌ Failed to create Convex client:", error);
+    // Create a minimal fallback client
+    try {
+      convex = new ConvexReactClient("https://tough-meadowlark-481.convex.cloud");
+    } catch (fallbackError) {
+      console.error("❌ Failed to create fallback Convex client:", fallbackError);
     }
   }
 
-  // Render content with conditional providers
-  const renderContent = (content) => (
+  // Always wrap with ConvexProvider to prevent hook errors
+  return (
     <div className="bg-background text-foreground">
-      {content}
+      {convex ? (
+        <ConvexProvider client={convex}>
+          {children}
+        </ConvexProvider>
+      ) : (
+        <div className="p-4 text-center">
+          <p className="text-red-500">Convex configuration error. Please check your environment variables.</p>
+          {children}
+        </div>
+      )}
     </div>
   );
-
-  let content = children;
-
-  // Always wrap with Convex provider - create a dummy client if needed
-  if (convex) {
-    console.log("Wrapping with ConvexProvider"); // Debug log
-    content = (
-      <ConvexProvider client={convex}>
-        {content}
-      </ConvexProvider>
-    );
-  } else {
-    console.log("Creating fallback ConvexProvider"); // Debug log
-    // Create a fallback ConvexProvider to prevent hook errors
-    try {
-      const fallbackClient = new ConvexReactClient("https://fallback.convex.cloud");
-      content = (
-        <ConvexProvider client={fallbackClient}>
-          {content}
-        </ConvexProvider>
-      );
-    } catch (error) {
-      console.log("Could not create fallback ConvexProvider:", error);
-    }
-  }
-
-  return renderContent(content);
 };
 
 export default Provider;

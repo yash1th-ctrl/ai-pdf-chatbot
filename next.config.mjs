@@ -1,36 +1,36 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Optimize for production deployment
-  output: 'standalone',
-
-  // Environment variables configuration
-  env: {
-    CUSTOM_KEY: process.env.CUSTOM_KEY,
-  },
+  // Remove standalone output for Render deployment
+  // output: 'standalone',
 
   // Image optimization for production
   images: {
     domains: ['img.clerk.com', 'images.clerk.dev'],
-    unoptimized: false,
+    unoptimized: process.env.NODE_ENV === 'production', // Disable optimization for Render
   },
 
   // Webpack configuration for production
   webpack: (config, { isServer }) => {
-    // Handle PDF parsing in production
+    // Handle PDF parsing and other Node.js modules
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
         fs: false,
         path: false,
+        crypto: false,
+        stream: false,
+        util: false,
+        buffer: false,
       };
     }
     return config;
   },
 
-  // Experimental features for better performance
-  experimental: {
-    serverComponentsExternalPackages: ['pdf-parse'],
-  },
+  // External packages for server components (Next.js 15 syntax)
+  serverExternalPackages: ['pdf-parse'],
+
+  // Disable strict mode to prevent double rendering in development
+  reactStrictMode: false,
 };
 
 export default nextConfig;

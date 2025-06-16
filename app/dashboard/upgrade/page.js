@@ -7,15 +7,14 @@ const UpgradePlans = () => {
   const { user } = useUser();
 
   // Conditionally set up Convex
+  // Always call hooks at the top level
   let userUpgradePlan = null;
 
   try {
-    if (process.env.NEXT_PUBLIC_CONVEX_URL) {
-      const { useMutation } = require("convex/react");
-      const { api } = require("@/convex/_generated/api");
-
-      userUpgradePlan = useMutation(api.user.userUpgradePlan);
-    }
+    // Import at the top level to avoid conditional hook calls
+    const { useMutation } = require("convex/react");
+    const { api } = require("@/convex/_generated/api");
+    userUpgradePlan = useMutation(api.user.userUpgradePlan);
   } catch (error) {
     console.log("Convex not available for upgrade functionality");
   }
