@@ -10,18 +10,20 @@ const Provider = ({ children }) => {
   let convex = null;
 
   try {
-    // Always use the production Convex URL for consistency
+    // Use the production Convex URL directly for consistency
     const productionConvexUrl = "https://tough-meadowlark-481.convex.cloud";
 
-    if (convexUrl && convexUrl !== "disabled" && convexUrl.startsWith("https://")) {
-      convex = new ConvexReactClient(convexUrl);
-      console.log("✅ Convex client created successfully with URL:", convexUrl.substring(0, 30) + "...");
+    // Always use production URL to ensure consistency
+    convex = new ConvexReactClient(productionConvexUrl);
+    console.log("✅ Convex client created with production URL:", productionConvexUrl);
+
+    // Log the environment URL for debugging
+    if (convexUrl) {
+      console.log("📝 Environment CONVEX_URL:", convexUrl.substring(0, 30) + "...");
     } else {
-      // Use production URL as fallback
-      console.warn("⚠️ Convex URL not configured, using production fallback");
-      convex = new ConvexReactClient(productionConvexUrl);
-      console.log("✅ Convex fallback client created with production URL");
+      console.log("⚠️ No NEXT_PUBLIC_CONVEX_URL found in environment");
     }
+
   } catch (error) {
     console.error("❌ Failed to create Convex client:", error);
     // Create a minimal fallback client with production URL

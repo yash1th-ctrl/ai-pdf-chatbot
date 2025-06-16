@@ -31,7 +31,8 @@ const UploadPdf = ({ isMaxFile }) => {
 
   // Always call Convex hooks - they will handle errors if ConvexProvider is not available
   const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
-  const convexAvailable = convexUrl && convexUrl !== "disabled" && convexUrl.startsWith("https://");
+  // Since we're using production URL directly in provider, Convex is always available
+  const convexAvailable = true; // Always true since we use production URL fallback
 
   // Always call hooks at the top level - this is required by React
   const generateUploadUrl = useMutation(api.fileStorage.generateUploadUrl);
@@ -64,15 +65,8 @@ const UploadPdf = ({ isMaxFile }) => {
       return;
     }
 
-    // Check if Convex is available
-    if (!convexAvailable) {
-      toast({
-        title: "Upload service not configured",
-        description: "Convex is not properly configured. Please check your environment variables.",
-        type: "error"
-      });
-      return;
-    }
+    // Convex is always available now with production URL fallback
+    console.log("🚀 Starting PDF upload process...");
 
     try {
       setLoading(true);

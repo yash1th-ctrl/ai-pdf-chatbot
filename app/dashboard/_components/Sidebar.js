@@ -16,14 +16,15 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
   // Get user email with fallback for testing
   const userEmail = user?.primaryEmailAddress?.emailAddress || "test@example.com";
 
-  // Always call hooks at the top level
+  // Always call hooks at the top level - import at module level
+  const { useQuery } = require("convex/react");
+  const { api } = require("@/convex/_generated/api");
+
+  // Always call Convex hooks
   let GetUserInfo = null;
   let fileList = null;
 
   try {
-    const { useQuery } = require("convex/react");
-    const { api } = require("@/convex/_generated/api");
-
     GetUserInfo = useQuery(api.user.GetUserInfo, {
       useEmail: userEmail,
     });
@@ -32,7 +33,10 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }) => {
       userEmail: userEmail,
     });
   } catch (error) {
-    console.log("Convex not available, using fallback data");
+    console.log("Convex query error, using fallback data:", error);
+    // Set fallback data
+    GetUserInfo = [{ upgrade: false }];
+    fileList = [];
   }
 
   // Provide fallback data when Convex is disabled or not available
