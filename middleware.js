@@ -1,4 +1,5 @@
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
+// Fixed for Vercel deployment - using nodejs runtime
 
 const isProtectedRoute = createRouteMatcher([
   '/dashboard(.*)',
