@@ -1,6 +1,5 @@
 "use client";
 import { useUser } from "@clerk/nextjs";
-import { PayPalButtons } from "@paypal/react-paypal-js";
 import React from "react";
 import { toast } from "sonner";
 
@@ -96,36 +95,16 @@ const UpgradePlans = () => {
               </li>
             </ul>
             <div className="mt-5 flex justify-center">
-              {process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID ? (
-                <PayPalButtons
-                  className="z-10"
-                  onApprove={() => onPaymentSuccess()}
-                  onCancel={() => console.log("Order Payment Cancelled")}
-                  createOrder={(data, actions) => {
-                    return actions.order.create({
-                      purchase_units: [
-                        {
-                          amount: {
-                            value: 10,
-                            currency_code: "USD",
-                          },
-                        },
-                      ],
-                    });
-                  }}
-                />
-              ) : (
-                <div className="text-center p-4 bg-gray-700 rounded-lg">
-                  <p className="text-[#ECDFCC] mb-2">Payment Integration Coming Soon</p>
-                  <p className="text-sm text-gray-400">PayPal integration is not configured yet.</p>
-                  <button
-                    onClick={() => toast.success("Thank you for your interest! Payment will be available soon.")}
-                    className="mt-3 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    Notify Me When Available
-                  </button>
-                </div>
-              )}
+              <div className="text-center p-4 bg-card rounded-lg border">
+                <p className="text-foreground mb-2">Upgrade to Premium</p>
+                <p className="text-sm text-muted-foreground mb-4">Get unlimited access to all features</p>
+                <button
+                  onClick={() => toast.success("Thank you for your interest! Premium features coming soon.")}
+                  className="px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+                >
+                  Coming Soon
+                </button>
+              </div>
             </div>
           </div>
         </div>

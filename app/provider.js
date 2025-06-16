@@ -1,7 +1,6 @@
 "use client";
 import React from "react";
 import { ConvexProvider, ConvexReactClient } from "convex/react";
-import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 
 const Provider = ({ children }) => {
   // Initialize Convex client
@@ -18,9 +17,6 @@ const Provider = ({ children }) => {
     }
   }
 
-  // Only initialize PayPal if client ID is provided
-  const paypalClientId = process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID;
-
   // Render content with conditional providers
   const renderContent = (content) => (
     <div className="bg-background text-foreground">
@@ -29,15 +25,6 @@ const Provider = ({ children }) => {
   );
 
   let content = children;
-
-  // Wrap with PayPal provider if client ID exists
-  if (paypalClientId) {
-    content = (
-      <PayPalScriptProvider options={{ clientId: paypalClientId }}>
-        {content}
-      </PayPalScriptProvider>
-    );
-  }
 
   // Always wrap with Convex provider - create a dummy client if needed
   if (convex) {
